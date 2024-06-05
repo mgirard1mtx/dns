@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Xunit;
 using DNS.Protocol.ResourceRecords;
 using DNS.Protocol;
+using System.Linq;
 
 namespace DNS.Tests.Protocol.ResourceRecords {
 
@@ -21,7 +22,7 @@ namespace DNS.Tests.Protocol.ResourceRecords {
         [InlineData("abc` =123 ", "abc ", "123 ")]
         public void Rfc1464Examples(string internalForm, string expAttributeName, string expAttributeValue) {
             TextResourceRecord record = new TextResourceRecord(new ArrayTextResourceRecord(internalForm));
-            KeyValuePair<string, string> attribute = record.Attribute;
+            KeyValuePair<string, string> attribute = record.Attributes.First();
             Assert.Equal(expAttributeName, attribute.Key);
             Assert.Equal(expAttributeValue, attribute.Value);
         }
@@ -32,7 +33,7 @@ namespace DNS.Tests.Protocol.ResourceRecords {
         [InlineData("", "", null, "")]
         public void NegativeExamples(string input, string expTxtData, string expAttributeName, string expAttributeValue) {
             TextResourceRecord record = new TextResourceRecord(new ArrayTextResourceRecord(input));
-            KeyValuePair<string, string> attribute = record.Attribute;
+            KeyValuePair<string, string> attribute = record.Attributes.First();
 
             Assert.Equal(expTxtData, record.ToStringTextData());
             Assert.Equal(expAttributeName, attribute.Key);

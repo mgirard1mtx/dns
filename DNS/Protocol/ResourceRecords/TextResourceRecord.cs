@@ -56,20 +56,22 @@ namespace DNS.Protocol.ResourceRecords {
 
         public IList<CharacterString> TextData { get; }
 
-        public KeyValuePair<string, string> Attribute {
-            get {
-                string text = ToStringTextData();
-                Match match = PATTERN_TXT_RECORD.Match(text);
+        public IEnumerable<KeyValuePair<string, string>> Attributes {
+            get =>
+                this.TextData.Select(chrStr =>
+                {
+                    var text = chrStr.ToString();
+                    Match match = PATTERN_TXT_RECORD.Match(text);
 
-                if (match.Success) {
-                    string attributeName = (match.Groups[1].Length > 0) ?
-                        Unescape(Trim(match.Groups[1].ToString())) : null;
-                    string attributeValue = Unescape(match.Groups[2].ToString());
-                    return new KeyValuePair<string, string>(attributeName, attributeValue);
-                } else {
-                    return new KeyValuePair<string, string>(null, Unescape(text));
-                }
-            }
+                    if (match.Success) {
+                        string attributeName = (match.Groups[1].Length > 0) ?
+                            Unescape(Trim(match.Groups[1].ToString())) : null;
+                        string attributeValue = Unescape(match.Groups[2].ToString());
+                        return new KeyValuePair<string, string>(attributeName, attributeValue);
+                    } else {
+                        return new KeyValuePair<string, string>(null, Unescape(text));
+                    }
+                });
         }
 
         public string ToStringTextData() {
@@ -81,7 +83,8 @@ namespace DNS.Protocol.ResourceRecords {
         }
 
         public override string ToString() {
-            return Stringify().Add("TextData", (object) ToStringTextData()).ToString();
+            var list = String.Join(" ", TextData.Select(c => c.ToString()));
+            return Stringify().Add("TextData", (object) list).ToString();
         }
     }
 }
